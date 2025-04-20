@@ -1,0 +1,66 @@
+/* Estilos para el logo en los encabezados */
+
+/* Estilo común para el contenedor del título con logo */
+.header-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+/* Estilo común para el logo */
+.header-logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    object-fit: contain;
+}
+
+/* Estilos específicos para el encabezado de la página principal */
+.main-header .header-title {
+    margin-bottom: 15px;
+}
+
+/* Estilos específicos para el encabezado de las páginas de categoría */
+.page-header {
+    background-color: var(--primary-blue);
+    color: var(--dark-blue-text);
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.page-header .header-logo {
+    width: 35px;
+    height: 35px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    font-weight: 500;
+}
+
+/* Estilos responsive */
+@media (max-width: 768px) {
+    .header-logo {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .page-header {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .page-header .header-logo {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5em;
+    }
+}

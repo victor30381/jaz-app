@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaz Organización - Inicio</title>
+    <link rel="icon" href="assets/icono-ico.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/icono-ico.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="header-logo.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="main-header">
+        <div class="header-title">
+            <img src="assets/icono.png" alt="Logo Jaz" class="header-logo">
+            <h1>Jaz Organización</h1>
+        </div>
+        <p>Elige una categoría para empezar</p>
+    </header>
+
+    <main class="home-main">
+        <nav class="category-navigation">
+            <a href="escuela.html" class="category-link">
+                <div class="category-card">
+                    <h2>Escuela</h2>
+                    <p>Tareas y recordatorios escolares</p>
+                    <p class="pending-tasks" id="escuela-pending"></p>
+                </div>
+            </a>
+            <a href="gym.html" class="category-link">
+                <div class="category-card">
+                    <h2>Gym</h2>
+                    <p>Rutinas y seguimiento</p>
+                    <p class="pending-tasks" id="gym-pending"></p>
+                </div>
+            </a>
+            <a href="varios.html" class="category-link">
+                <div class="category-card">
+                    <h2>Varios</h2>
+                    <p>Otras tareas y pendientes</p>
+                    <p class="pending-tasks" id="varios-pending"></p>
+                </div>
+            </a>
+        </nav>
+    </main>
+
+    <footer>
+        <p>© 2023 Jaz Organización</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar tareas desde localStorage
+            function loadTasks() {
+                const storedTasks = localStorage.getItem('jazOrgTasks');
+                return storedTasks ? JSON.parse(storedTasks) : {};
+            }
+            
+            // Contar tareas pendientes por categoría
+            function countPendingTasks() {
+                const tasks = loadTasks();
+                const categories = ['escuela', 'gym', 'varios'];
+                const today = new Date();
+                
+                categories.forEach(category => {
+                    let pendingCount = 0;
+                    
+                    // Si existe la categoría en las tareas
+                    if (tasks[category]) {
+                        // Recorrer todas las fechas de la categoría
+                        Object.keys(tasks[category]).forEach(dateString => {
+                            // Sumar tareas activas (pendientes)
+                            if (tasks[category][dateString] && tasks[category][dateString].active) {
+                                pendingCount += tasks[category][dateString].active.length;
+                            }
+                        });
+                    }
+                    
+                    // Mostrar el contador en el elemento correspondiente
+                    const pendingElement = document.getElementById(`${category}-pending`);
+                    if (pendingElement) {
+                        if (pendingCount > 0) {
+                            pendingElement.textContent = `${pendingCount} ${pendingCount === 1 ? 'tarea pendiente' : 'tareas pendientes'}`;
+                            pendingElement.classList.add('has-pending');
+                        } else {
+                            pendingElement.textContent = 'Sin tareas pendientes';
+                        }
+                    }
+                });
+            }
+            
+            // Ejecutar al cargar la página
+            countPendingTasks();
+        });
+    </script>
+</body>
+</html>

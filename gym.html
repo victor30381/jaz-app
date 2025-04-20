@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jaz Organización - Gym</title>
+    <link rel="icon" href="assets/icono-ico.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/icono-ico.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="header-logo.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body data-category="gym">
+
+    <div class="hamburger-menu">
+        <i class="fas fa-bars hamburger-icon"></i>
+    </div>
+    
+    <nav class="nav-menu">
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="escuela.html">Escuela</a></li>
+            <li><a href="gym.html" class="active">Gym</a></li>
+            <li><a href="varios.html">Varios</a></li>
+        </ul>
+    </nav>
+
+    <header class="page-header">
+        <div class="header-title">
+            <img src="assets/icono.png" alt="Logo Jaz" class="header-logo">
+            <h1>Organización: Gym</h1>
+        </div>
+    </header>
+
+    <main class="category-main">
+        <div class="calendar-container">
+            <h2>Calendario Mensual</h2>
+            <div class="calendar-header">
+                <button id="prev-month" class="calendar-nav"><</button>
+                <span id="month-year"></span>
+                <button id="next-month" class="calendar-nav">></button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
+                <div class="day-header">Dom</div>
+                <div class="day-header">Lun</div>
+                <div class="day-header">Mar</div>
+                <div class="day-header">Mié</div>
+                <div class="day-header">Jue</div>
+                <div class="day-header">Vie</div>
+                <div class="day-header">Sáb</div>
+                <!-- Los días se generarán aquí con JS -->
+            </div>
+        </div>
+
+        <div class="tasks-section">
+            <h2>Tareas para: <span id="selected-date-display">Ninguna fecha seleccionada</span></h2>
+            <div class="task-form">
+                <input type="text" id="task-input" placeholder="Nueva tarea para la fecha seleccionada..." required disabled>
+                <button type="button" id="add-task-btn" disabled>Agregar</button>
+            </div>
+
+            <div class="list-container">
+                <h3>Pendientes</h3>
+                <ul id="active-tasks" class="task-list active">
+                    <!-- Tareas activas para la fecha seleccionada -->
+                </ul>
+            </div>
+
+            <div class="list-container completed-container">
+                <h3>Realizadas</h3>
+                <ul id="completed-tasks" class="task-list completed">
+                    <!-- Tareas completadas para la fecha seleccionada -->
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p> 2023 Jaz Organización</p>
+    </footer>
+
+    <!-- Modal para agregar tarea -->
+    <div class="modal-overlay" id="task-modal-overlay">
+        <div class="task-modal">
+            <div class="modal-header">
+                <h3>Agregar Nueva Tarea</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <form id="modal-task-form" class="modal-form">
+                <div class="form-group">
+                    <label for="task-time">Horario (opcional)</label>
+                    <input type="time" id="task-time" placeholder="Ej: 14:30">
+                </div>
+                <div class="form-group">
+                    <label for="task-description">Descripción (opcional)</label>
+                    <textarea id="task-description" placeholder="Describe la tarea a realizar..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="cancel-btn" id="cancel-task">Cancelar</button>
+                    <button type="button" class="save-btn" id="save-task">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ver detalles de tarea -->
+    <div class="details-modal-overlay" id="details-modal-overlay">
+        <div class="details-modal">
+            <div class="details-modal-header">
+                <h3>Detalles de la Tarea</h3>
+                <button class="close-modal" id="close-details-modal">&times;</button>
+            </div>
+            <div class="details-content">
+                <div>
+                    <span class="details-label">Título:</span>
+                    <div class="details-value" id="detail-title"></div>
+                </div>
+                <div>
+                    <span class="details-label">Horario:</span>
+                    <div class="details-value" id="detail-time"></div>
+                </div>
+                <div>
+                    <span class="details-label">Descripción:</span>
+                    <div class="details-value" id="detail-description"></div>
+                </div>
+            </div>
+            <div class="details-actions">
+                <button type="button" class="close-details-btn" id="close-details-btn">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Función para agregar el botón de ojo a las tareas
+        function addViewButtonToTasks() {
+            // Seleccionar todas las tareas existentes
+            const taskItems = document.querySelectorAll('.task-list li');
+            
+            taskItems.forEach(li => {
+                // Verificar si ya tiene el botón de ver
+                if (!li.querySelector('.view-btn') && (li.dataset.taskTime || li.dataset.taskDescription)) {
+                    const actionsDiv = li.querySelector('.task-actions');
+                    if (actionsDiv) {
+                        // Crear botón Ver Detalles
+                        const viewButton = document.createElement('button');
+                        viewButton.classList.add('task-action-btn', 'view-btn');
+                        viewButton.innerHTML = '<i class="fas fa-eye"></i>';
+                        viewButton.title = "Ver detalles";
+                        viewButton.addEventListener('click', function(event) {
+                            event.stopPropagation();
+                            showTaskDetails(this);
+                        });
+                        
+                        // Insertar antes del botón de eliminar
+                        const deleteBtn = actionsDiv.querySelector('.delete-btn');
+                        if (deleteBtn) {
+                            actionsDiv.insertBefore(viewButton, deleteBtn);
+                        } else {
+                            actionsDiv.appendChild(viewButton);
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Sobrescribir la función createTaskElement
+        const originalCreateTaskElement = window.createTaskElement;
+        if (originalCreateTaskElement) {
+            window.createTaskElement = function(taskText, dateString, index, isCompleted) {
+                // Obtener el elemento li original
+                const li = originalCreateTaskElement(taskText, dateString, index, isCompleted);
+                
+                // Obtener los datos almacenados en localStorage
+                const tasksKey = `task_details_${dateString}_${index}`;
+                const storedDetails = localStorage.getItem(tasksKey);
+                
+                if (storedDetails) {
+                    const details = JSON.parse(storedDetails);
+                    li.dataset.taskTime = details.time || '';
+                    li.dataset.taskDescription = details.description || '';
+                    
+                    // Agregar botón de ver detalles
+                    const actionsDiv = li.querySelector('.task-actions');
+                    if (actionsDiv && (details.time || details.description)) {
+                        // Botón Ver Detalles
+                        const viewButton = document.createElement('button');
+                        viewButton.classList.add('task-action-btn', 'view-btn');
+                        viewButton.innerHTML = '<i class="fas fa-eye"></i>';
+                        viewButton.title = "Ver detalles";
+                        viewButton.addEventListener('click', function(event) {
+                            event.stopPropagation();
+                            showTaskDetails(this);
+                        });
+                        
+                        // Insertar antes del botón de eliminar
+                        const deleteBtn = actionsDiv.querySelector('.delete-btn');
+                        if (deleteBtn) {
+                            actionsDiv.insertBefore(viewButton, deleteBtn);
+                        } else {
+                            actionsDiv.appendChild(viewButton);
+                        }
+                    }
+                }
+                
+                return li;
+            };
+        }
+        // Funcionalidad del menú hamburguesa
+        document.addEventListener('DOMContentLoaded', function() {
+            const hamburgerMenu = document.querySelector('.hamburger-menu');
+            const navMenu = document.querySelector('.nav-menu');
+            
+            hamburgerMenu.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+            });
+            
+            // Cerrar el menú al hacer clic fuera de él
+            document.addEventListener('click', function(event) {
+                if (!hamburgerMenu.contains(event.target) && !navMenu.contains(event.target)) {
+                    navMenu.classList.remove('active');
+                }
+            });
+
+            // Funcionalidad del modal para agregar tareas
+            const addTaskBtn = document.getElementById('add-task-btn');
+            const modalOverlay = document.getElementById('task-modal-overlay');
+            const closeModalBtn = document.getElementById('close-modal');
+            const cancelTaskBtn = document.getElementById('cancel-task');
+            const modalTaskForm = document.getElementById('modal-task-form');
+            const taskForm = document.getElementById('task-form');
+            
+            // Abrir modal al hacer clic en Agregar
+            addTaskBtn.addEventListener('click', function() {
+                if (!addTaskBtn.disabled) {
+                    modalOverlay.classList.add('active');
+                    document.getElementById('task-time').focus();
+                }
+            });
+            
+            // Sobrescribir la función handleAddTask para usar nuestro modal
+            window.handleAddTask = function(event) {
+                if (event) event.preventDefault();
+                
+                // Si hay una fecha seleccionada, abrir el modal
+                if (document.querySelector('.day.selected')) {
+                    modalOverlay.classList.add('active');
+                    document.getElementById('task-time').focus();
+                }
+            };
+            
+            // Cerrar modal con botón X
+            closeModalBtn.addEventListener('click', function() {
+                modalOverlay.classList.remove('active');
+            });
+            
+            // Cerrar modal con botón Cancelar
+            cancelTaskBtn.addEventListener('click', function() {
+                modalOverlay.classList.remove('active');
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            modalOverlay.addEventListener('click', function(event) {
+                if (event.target === modalOverlay) {
+                    modalOverlay.classList.remove('active');
+                }
+            });
+            
+            // Manejar clic en el botón guardar del modal
+            document.getElementById('save-task').addEventListener('click', function() {
+                // Obtener los valores del formulario
+                const taskTitle = document.getElementById('task-input').value.trim();
+                const taskTime = document.getElementById('task-time').value;
+                const taskDescription = document.getElementById('task-description').value;
+                
+                // Verificar que haya un título de tarea
+                if (taskTitle === '') {
+                    alert('Por favor ingresa un título para la tarea');
+                    return;
+                }
+                
+                // Obtener fecha seleccionada y categoría
+                const selectedDateElement = document.querySelector('.day.selected');
+                if (!selectedDateElement) {
+                    alert('Por favor selecciona una fecha');
+                    return;
+                }
+                
+                const selectedDate = selectedDateElement.getAttribute('data-date');
+                const category = document.body.getAttribute('data-category');
+                
+                // Usar las funciones expuestas en script.js
+                // Asegurar estructura en appTasks
+                if (!window.appTasks) {
+                    window.appTasks = {};
+                }
+                
+                if (!window.appTasks[category]) window.appTasks[category] = {};
+                if (!window.appTasks[category][selectedDate]) window.appTasks[category][selectedDate] = { active: [], completed: [] };
+                
+                // Agregar la tarea
+                const newIndex = window.appTasks[category][selectedDate].active.length;
+                window.appTasks[category][selectedDate].active.push(taskTitle);
+                
+                // Guardar los detalles en localStorage si hay hora o descripción
+                if (taskTime || taskDescription) {
+                    const tasksKey = `task_details_${selectedDate}_${newIndex}`;
+                    const details = {
+                        time: taskTime || '',
+                        description: taskDescription || ''
+                    };
+                    localStorage.setItem(tasksKey, JSON.stringify(details));
+                }
+                
+                // Guardar tareas, renderizar y actualizar calendario
+                if (typeof window.saveTasks === 'function') {
+                    window.saveTasks();
+                    window.renderTasks(selectedDate);
+                    window.updateCalendarDayIndicator(selectedDate);
+                } else {
+                    console.error('Las funciones necesarias no están disponibles en el objeto window');
+                }
+                
+                // Limpiar el campo de entrada
+                document.getElementById('task-input').value = '';
+                
+                // Agregar botones de ver a las tareas
+                setTimeout(addViewButtonToTasks, 100);
+                
+                // Limpiar y cerrar el modal
+                modalTaskForm.reset();
+                modalOverlay.classList.remove('active');
+                
+                console.log('Tarea agregada con éxito:', taskTitle, 'con detalles:', { time: taskTime, description: taskDescription });
+            });
+            
+            // Modal de detalles de tarea
+            const detailsModalOverlay = document.getElementById('details-modal-overlay');
+            const closeDetailsModalBtn = document.getElementById('close-details-modal');
+            const closeDetailsBtn = document.getElementById('close-details-btn');
+            
+            // Cerrar modal de detalles con botón X
+            closeDetailsModalBtn.addEventListener('click', function() {
+                detailsModalOverlay.classList.remove('active');
+            });
+            
+            // Cerrar modal de detalles con botón Cerrar
+            closeDetailsBtn.addEventListener('click', function() {
+                detailsModalOverlay.classList.remove('active');
+            });
+            
+            // Cerrar modal de detalles al hacer clic fuera
+            detailsModalOverlay.addEventListener('click', function(event) {
+                if (event.target === detailsModalOverlay) {
+                    detailsModalOverlay.classList.remove('active');
+                }
+            });
+            
+            // Función para mostrar detalles de una tarea
+            window.showTaskDetails = function(taskElement) {
+                const li = taskElement.closest('li');
+                const title = li.querySelector('span').textContent;
+                const time = li.dataset.taskTime || '';
+                const description = li.dataset.taskDescription || '';
+                
+                document.getElementById('detail-title').textContent = title;
+                document.getElementById('detail-time').textContent = time || 'No especificado';
+                document.getElementById('detail-description').textContent = description || 'Sin descripción';
+                
+                if (!time) {
+                    document.getElementById('detail-time').classList.add('details-empty');
+                } else {
+                    document.getElementById('detail-time').classList.remove('details-empty');
+                }
+                
+                if (!description) {
+                    document.getElementById('detail-description').classList.add('details-empty');
+                } else {
+                    document.getElementById('detail-description').classList.remove('details-empty');
+                }
+                
+                detailsModalOverlay.classList.add('active');
+            };
+        });
+        
+
+    </script>
+</body>
+</html>
